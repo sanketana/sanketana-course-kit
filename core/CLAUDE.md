@@ -4,15 +4,16 @@ This repository is a **Sanketana School of Code course**. Content only — never
 
 ## Before writing anything
 Read, in this order:
-1. `CONVENTION.md` — structural rules. MUST rules are non-negotiable.
-2. `TRACK.md` — rules for this course's track.
-3. `pedagogy.md` — what a Sanketana lesson is, how we teach, the voice.
+The kit files live in `.kit/` — hidden from the root so a teacher isn't wading through them.
+1. `.kit/CONVENTION.md` — structural rules. MUST rules are non-negotiable.
+2. `.kit/TRACK.md` — rules for this course's track.
+3. `.kit/pedagogy.md` — what a Sanketana lesson is, how we teach, the voice.
 4. `curriculum.md` — the baselined spine. Lessons follow it. If writing a lesson reveals a
    problem with the spine, **stop and say so**; do not silently diverge.
-5. `_template/` — the model lesson. Copy its structure and depth. Do not copy its content.
+5. `.kit/_template/` — the model lesson. Copy its structure and depth. Do not copy its content.
 
 ## Working rules
-- New lesson: copy `_template/` to `lesson-NN-<slug>/`, set `lesson.yaml: id` to the id from
+- New lesson: copy `.kit/_template/` to `lesson-NN-<slug>/`, set `lesson.yaml: id` to the id from
   `curriculum.md`, add the id to `course.yaml: lessons` if missing.
 - Write `lesson-plan.md` first — the eight numbered sections are fixed and all required — then
   `concepts.md`, then `homework.md`, then `practice.md`.
@@ -33,13 +34,16 @@ Read, in this order:
   (Promise through Questions parents ask). Draw only on facts already in `curriculum.md` or
   `course.yaml`; never invent a claim, a fee or an outcome. If a parent-facing view needs a fact the
   spine doesn't hold, add it to `curriculum.md` first.
-- After any change, run `python3 scripts/validate.py` and fix every error before finishing.
+- After any change, run `python3 .kit/scripts/validate.py` and fix every error before finishing.
   Warnings: fix if quick, otherwise list them in your final message.
-- Don't edit `_template/`, `CONVENTION.md`, `TRACK.md`, or `pedagogy.md` here.
+- Don't edit anything inside `.kit/` — it is overwritten by `sync-kit.sh`.
   Kit improvements go in `_drafts/KIT-TODO.md` for the kit repo.
 
 ## Course-specific context
-<!-- Fill in when the course is created. Keep it short. -->
+<!-- THE LINE ABOVE IS THE BOUNDARY.
+     Everything above it belongs to the kit and is replaced by `sync-kit.sh`.
+     Everything from that heading down is this course's, and sync-kit.sh preserves it.
+     Fill it in when the course is created. Keep it short. -->
 - Audience:
 - Comes from:
 - Tools:

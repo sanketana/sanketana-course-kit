@@ -6,7 +6,7 @@ Every Sanketana course lives in its own GitHub repo and follows this layout. The
 **content** source of truth only. Student state — progress, quiz attempts, submissions, notes
 about a particular student — never goes in git.
 
-- **MUST** rules are enforced by `scripts/validate.py` and will fail a frontend build.
+- **MUST** rules are enforced by `.kit/scripts/validate.py` and will fail a frontend build.
 - **SHOULD** rules produce warnings. They exist for consistency and can evolve freely.
 - Track-specific rules live in `TRACK.md` and extend (never override) this file.
 
@@ -18,21 +18,31 @@ about a particular student — never goes in git.
 <course-slug>/
   course.yaml              MUST   course manifest (§2)
   curriculum.md            MUST   the baselined spine (shape: curriculum-template.md)
-  CONVENTION.md            kit    this file
-  TRACK.md                 kit    track rules
-  pedagogy.md              kit
   CLAUDE.md                kit    authoring instructions for Claude Code
-  _template/               kit    one model lesson to copy from
-  scripts/                 kit    validate.py, sync-kit.sh
   lesson-01-<slug>/               one folder per lesson (§3)
   lesson-02-<slug>/
   assessments/             MUST   the course's three assessments (§6)
   shared/                  opt    assets/ or code/ reused across lessons
   _drafts/                 opt    scratch; ignored by validator and view
+  .kit/                    kit    everything shared with every other course:
+      CONVENTION.md               this file
+      TRACK.md                    track rules
+      pedagogy.md
+      _template/                  one model lesson to copy from
+      scripts/                    validate.py, sync-kit.sh
+  .github/workflows/       kit    validate.yml
 ```
 
+**The root is what somebody authored.** A teacher opening a course sees the spine, the lessons and the
+assessments — not five files identical in every course. The kit lives in `.kit/`, hidden from `ls` and
+from Finder, and the validator skips every dotted entry before it checks anything.
+
+`CLAUDE.md` is the one exception and stays at the root: Claude Code reads it from there and nowhere
+else. It also holds this course's own context, which is why `sync-kit.sh` never overwrites it.
+
 - Course slug: lowercase, hyphens, no version suffix. `python-foundations`, not `python-foundations-v2`.
-- MUST: no other files or folders at root (dotfiles like `.github/`, `.gitignore` are fine).
+- MUST: no other files or folders at root (dotted entries like `.kit/`, `.github/`, `.gitignore`
+  are skipped entirely).
 - **`curriculum.md` is the single source for everything written about the course.** There is no
   separate parent-facing document. The course's front page in the view, and any brochure copy handed
   to a designer, are rendered from the spine's parent-safe sections — outputs, not files to maintain.

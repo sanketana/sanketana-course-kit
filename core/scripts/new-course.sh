@@ -14,12 +14,15 @@ KIT_VERSION="$(grep -m1 -oE '^## [0-9.]+' "$KIT/CHANGELOG.md" | sed 's/## //')"
 DEST="$PARENT/$SLUG"
 [[ -e "$DEST" ]] && { echo "$DEST already exists"; exit 1; }
 
-mkdir -p "$DEST/scripts" "$DEST/_drafts" "$DEST/.github/workflows" "$DEST/assessments"
-cp "$KIT/core/CONVENTION.md" "$KIT/core/pedagogy.md" "$KIT/core/CLAUDE.md" "$DEST/"
-cp "$KIT/core/scripts/validate.py" "$KIT/core/scripts/sync-kit.sh" "$DEST/scripts/"
+# Kit files live in .kit/ so the course root shows only what a teacher or author needs.
+# CLAUDE.md is the exception: Claude Code reads it from the root and nowhere else.
+mkdir -p "$DEST/.kit/scripts" "$DEST/_drafts" "$DEST/.github/workflows" "$DEST/assessments"
+cp "$KIT/core/CLAUDE.md" "$DEST/"
+cp "$KIT/core/CONVENTION.md" "$KIT/core/pedagogy.md" "$DEST/.kit/"
+cp "$KIT/core/scripts/validate.py" "$KIT/core/scripts/sync-kit.sh" "$DEST/.kit/scripts/"
 cp "$KIT/core/.github-workflow-validate.yml" "$DEST/.github/workflows/validate.yml"
-cp "$KIT/tracks/$TRACK/TRACK.md" "$DEST/"
-cp -r "$KIT/tracks/$TRACK/_template" "$DEST/_template"
+cp "$KIT/tracks/$TRACK/TRACK.md" "$DEST/.kit/"
+cp -r "$KIT/tracks/$TRACK/_template" "$DEST/.kit/_template"
 cp "$KIT/core/curriculum-template.md" "$DEST/curriculum.md"
 echo "# KIT TODO — things to improve in sanketana-course-kit" > "$DEST/_drafts/KIT-TODO.md"
 
@@ -80,3 +83,5 @@ GI
 cd "$DEST" && git init -q && git add -A && git commit -qm "Scaffold from sanketana-course-kit $KIT_VERSION ($TRACK)"
 echo "Created $DEST from kit $KIT_VERSION, track $TRACK."
 echo "Next: fill course.yaml, replace curriculum.md with your baselined spine, then: git tag spine-v1"
+echo "Kit files (convention, pedagogy, track rules, model lesson, scripts) are in .kit/"
+echo "Validate with: python3 .kit/scripts/validate.py"

@@ -48,16 +48,19 @@ cd ~/Documents/Sanketana/courses/python-foundations
 cp ~/path/to/curriculum.md .
 git add -A && git commit -m "Spine v1" && git tag spine-v1
 ```
-`new-course.sh` copies `core/`, the chosen track's `TRACK.md` and `_template/`,
-and writes a starter `course.yaml` with `convention`, `track`, and `kit_version` set.
+`new-course.sh` writes a starter `course.yaml` and puts everything shared with other
+courses into a hidden `.kit/` — convention, pedagogy, track rules, the model lesson and
+the scripts. The course root stays as `course.yaml`, `curriculum.md`, `assessments/`,
+the lesson folders and `CLAUDE.md`, so a teacher opening the repo sees only real content.
 
 ### 3. Generate content (Claude Code)
 Open the course repo in Claude Code. It reads `CLAUDE.md` automatically, which
-points it at `CONVENTION.md`, `TRACK.md`, `pedagogy.md`, `curriculum.md`, and `_template/`.
+points it at `.kit/CONVENTION.md`, `.kit/TRACK.md`, `.kit/pedagogy.md`, `curriculum.md`,
+and `.kit/_template/`.
 
 Suggested first prompts:
 - "Derive `course.yaml` lessons/tiers and a `lesson.yaml` for every lesson from `curriculum.md`. Run validate.py."
-- "Using `_template/` as the model, write lessons l01–l04. Run validate.py and fix errors."
+- "Using `.kit/_template/` as the model, write lessons l01–l04. Run validate.py and fix errors."
 - Review each batch as a git diff. Push back on voice and depth; structure is handled.
 
 ### 4. Revising the spine
@@ -68,7 +71,8 @@ Suggested first prompts:
 ### 5. Improving the kit
 Change the kit **in the kit repo**, never only inside a course. Then:
 ```bash
-cd <course-repo> && ./scripts/sync-kit.sh ~/path/to/sanketana-course-kit
+cd <course-repo>                      # the course is the current directory, never an argument
+bash ~/path/to/sanketana-course-kit/core/scripts/sync-kit.sh
 ```
 Mid-lesson niggles go in the course's `_drafts/KIT-TODO.md`; clear them in batches.
 Don't tag `kit-v1.0` until the first course validates clean end to end. Until then the kit is
@@ -76,8 +80,8 @@ unreleased and can change freely — no migration scripts, no legacy paths.
 
 ## Validation
 ```bash
-python3 scripts/validate.py            # from inside a course repo
-python3 scripts/validate.py --strict   # treat warnings as errors
+python3 .kit/scripts/validate.py            # from inside a course repo
+python3 .kit/scripts/validate.py --strict   # treat warnings as errors
 ```
 Requires `pip install pyyaml`. Claude Code runs this itself; GitHub Actions runs it as backstop
 (see `core/.github-workflow-validate.yml` — copy to `.github/workflows/validate.yml` in a course).

@@ -33,5 +33,9 @@ per-session detail block, so a spine can be reviewed before any lesson is genera
 `## Questions parents ask` are parent-safe; every parent-facing view — the course front page,
 brochure copy for a designer — is rendered from them on request. There is no second document.
 
+**Kit files live in `.kit/` inside a course**, not at the root — convention, pedagogy, track rules,
+the model lesson and the scripts. A course root is `course.yaml`, `curriculum.md`, `assessments/`,
+the lesson folders and `CLAUDE.md`, which stays put because Claude Code reads it from there.
+
 **`thinking_skills` is ai-fluency only.** The vocabulary lives in that track's `TRACK.md`; the
 validator checks it there and warns if it appears elsewhere.

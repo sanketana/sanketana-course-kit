@@ -3,8 +3,8 @@
 Sanketana course repo validator — convention 1.
 
 Usage (from a course repo root):
-    python3 scripts/validate.py            errors fail, warnings reported
-    python3 scripts/validate.py --strict   warnings also fail
+    python3 .kit/scripts/validate.py            errors fail, warnings reported
+    python3 .kit/scripts/validate.py --strict   warnings also fail
 
 Error messages are written so that Claude Code can fix them without asking.
 """
@@ -42,10 +42,11 @@ SKILLS = {                       # ai-fluency track only
     "selective-judgment",
     "ethical-reasoning",
 }
+# Kit files live in `.kit/`, and everything starting with a dot is skipped before this
+# set is consulted — so the course root is only what a teacher or author authored.
 ROOT_ALLOWED = {
-    "course.yaml", "curriculum.md",
-    "CONVENTION.md", "TRACK.md", "pedagogy.md", "CLAUDE.md", "README.md", "LICENSE",
-    "_template", "scripts", "shared", "_drafts", "assessments",
+    "course.yaml", "curriculum.md", "CLAUDE.md", "README.md", "LICENSE",
+    "shared", "_drafts", "assessments",
 }
 # A course has exactly three assessments, at the repo root in `assessments/`.
 #   stem -> (kind, questions, minutes)
