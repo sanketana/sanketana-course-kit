@@ -35,7 +35,7 @@ def warn(msg: str) -> None:
 # ---------------------------------------------------------------- constants
 CONVENTION = 1
 TRACKS = {"text-code", "block-code", "ai-fluency"}
-SKILLS = {
+SKILLS = {                       # ai-fluency track only
     "mental-modeling",
     "intentional-direction",
     "critical-evaluation",
@@ -43,46 +43,67 @@ SKILLS = {
     "ethical-reasoning",
 }
 ROOT_ALLOWED = {
-    "course.yaml", "curriculum.md", "overview.md", "CONVENTION.md", "TRACK.md",
-    "pedagogy.md", "CLAUDE.md", "README.md", "LICENSE",
-    "_template", "scripts", "shared", "_drafts",
+    "course.yaml", "curriculum.md",
+    "CONVENTION.md", "TRACK.md", "pedagogy.md", "CLAUDE.md", "README.md", "LICENSE",
+    "_template", "scripts", "shared", "_drafts", "assessments",
+}
+# A course has exactly three assessments, at the repo root in `assessments/`.
+#   stem -> (kind, questions, minutes)
+ASSESSMENTS = {
+    "formative-1": ("formative", 10, 15),
+    "formative-2": ("formative", 10, 15),
+    "summative": ("summative", 20, 45),
 }
 LESSON_DIR_RE = re.compile(r"^lesson-(\d{2})-([a-z0-9]+(?:-[a-z0-9]+)*)$")
 LESSON_ID_RE = re.compile(r"^l\d{2}$")
-LESSON_FILES_REQUIRED = {"lesson.yaml", "classwork.md", "homework.md"}
-LESSON_FILES_OPTIONAL = {"solutions.md", "teacher-notes.md", "practice.md", "quiz.yaml"}
 LESSON_DIRS_OPTIONAL = {"code", "assets"}
 QUIZ_TYPES = {"single", "multi", "predict", "short"}
 
+CONCEPT_H2 = {
+    "The Idea", "How It Works", "Worked Example", "Vocabulary",
+    "Common Mistakes", "Where This Shows Up", "Key Takeaways",
+}
+
+# The six phases every §5 Class Activities table runs, in order. SHOULD, not MUST.
+PHASES = [
+    ("Recap", ("recap",)),
+    ("New concept", ("new concept", "new idea", "concept")),
+    ("Predict → Observe → Explain", ("predict", "poe")),
+    ("Build", ("build",)),
+    ("Reflection", ("reflect",)),
+    ("Homework brief", ("homework",)),
+]
+PLAN_TABLE_HEAD = "| Phase | Min | What happens | Purpose |"
+
+# `lesson-plan.md` is a fixed spine: these eight H2s, numbered, in this order.
+PLAN_SECTIONS = [
+    "Lesson Theme",
+    "Key Activity",
+    "Tools & Materials",
+    "Learning Outcomes",
+    "Class Activities",
+    "Differentiation Notes",
+    "Student Templates / Starter Materials",
+    "Teacher Prep Notes",
+]
+
+LESSON_FILES_REQUIRED = {"lesson.yaml", "lesson-plan.md", "concepts.md", "homework.md", "practice.md"}
+LESSON_FILES_OPTIONAL = {"solutions.md"}
+STUDENT_FILE = "concepts.md"
+TEACHER_ONLY = {"lesson-plan.md", "solutions.md"}
 CORE_H2 = {
-    "classwork.md": {
-        "Lesson Theme", "What You'll Build", "Tools Used", "What You'll Learn",
-        "Starter Materials", "Predict the Output", "In Class", "Reflection", "Key Takeaways",
-    },
+    "concepts.md": CONCEPT_H2,
     "homework.md": {"Homework"},
     "solutions.md": set(),
     "practice.md": {"Practice Projects"},
-    "teacher-notes.md": {"Prep", "Timing", "Common Pitfalls", "Differentiation", "What to Watch For"},
+    "lesson-plan.md": set(),     # checked against PLAN_SECTIONS instead
 }
 NUMBERED_OK = {"homework.md", "solutions.md", "practice.md"}
-
-TRACK_H2 = {
-    "text-code": {
-        "classwork.md": {"Bug Hunt"},
-    },
-    "block-code": {
-        "classwork.md": {"Build Steps", "Remix Challenge"},
-    },
-    "ai-fluency": {
-        "classwork.md": {"Prompt Lab", "Ethics Check", "Tool Judgment"},
-    },
-}
 
 FRONTMATTER_RE = re.compile(r"^---\s*\n")
 H2_RE = re.compile(r"^## +(.+?)\s*$", re.MULTILINE)
 H3_RE = re.compile(r"^### +(.+?)\s*$", re.MULTILINE)
 NUMBERED_RE = re.compile(r"^\d+\.\s+\S")
-DURATION_RE = re.compile(r"\(\d+ min\)$")
 ABS_GITHUB_RE = re.compile(r"\]\(https?://(?:www\.)?github\.com/")
 
 
@@ -94,6 +115,80 @@ def load_yaml(path: Path):
     except yaml.YAMLError as e:
         err(f"{path.relative_to(ROOT)}: invalid YAML — {e}")
         return None
+
+
+def check_questions(Q: dict, qw: str, base: Path, covers) -> None:
+    """Validate an assessment's `questions:` list."""
+    if not isinstance(Q.get("questions"), list):
+        return
+    qids = set()
+    for i, q in enumerate(Q["questions"], 1):
+        qq = f"{qw} question {i}"
+        if not isinstance(q, dict):
+            err(f"{qq}: must be a mapping")
+            continue
+        if require(q, "id", qq, str):
+            if q["id"] in qids:
+                err(f"{qq}: duplicate question id `{q['id']}`")
+            qids.add(q["id"])
+        require(q, "prompt", qq, str)
+        require(q, "answer", qq)
+        if require(q, "type", qq, str) and q["type"] not in QUIZ_TYPES:
+            err(f"{qq}: `type` must be one of {sorted(QUIZ_TYPES)}")
+        if require(q, "lesson", qq, str) and q["lesson"] not in covers:
+            err(f"{qq}: `lesson` `{q['lesson']}` is not in this assessment's `covers`")
+        t = q.get("type")
+        if t in ("single", "multi"):
+            if require(q, "options", qq, list):
+                oids = {o.get("id") for o in q["options"] if isinstance(o, dict)}
+                ans = q.get("answer")
+                ans_list = ans if isinstance(ans, list) else [ans]
+                for a in ans_list:
+                    if a not in oids:
+                        err(f"{qq}: `answer` `{a}` is not an option id ({sorted(oids)})")
+                if t == "single" and isinstance(ans, list):
+                    err(f"{qq}: `single` question must have one answer, not a list")
+        if t == "predict":
+            if require(q, "code_ref", qq, str) and not (base / q["code_ref"]).exists():
+                err(f"{qq}: `code_ref` `{q['code_ref']}` does not exist")
+        if "explanation" not in q:
+            warn(f"{qq}: no `explanation` — the reveal is where the learning happens")
+
+
+def check_class_activities(plan: str, fw: str, duration) -> None:
+    """§5 is the whole class flow: it must be a table, and it should run the standard phases."""
+    m = re.search(r"^## 5\. Class Activities\s*$", plan, re.MULTILINE)
+    if not m:
+        return                                   # the spine check already reported it
+    rest = plan[m.end():]
+    nxt = re.search(r"^## ", rest, re.MULTILINE)
+    block = rest[: nxt.start()] if nxt else rest
+
+    rows = [l.strip() for l in block.splitlines() if l.strip().startswith("|")]
+    if not rows:
+        err(f"{fw}: §5 Class Activities must be a table — `{PLAN_TABLE_HEAD}`")
+        return
+    if rows[0].replace("  ", " ") != PLAN_TABLE_HEAD:
+        err(f"{fw}: §5 table header must be exactly `{PLAN_TABLE_HEAD}`, got `{rows[0]}`")
+    body = [r for r in rows[2:] if r.count("|") >= 5]
+
+    before = block[: block.index(rows[0])] if rows[0] in block else ""
+    if "**" not in before:
+        warn(f"{fw}: §5 should open with a bolded line naming what to protect if the hour runs short")
+
+    names = [r.split("|")[1].strip().lower() for r in body]
+    hit = sum(any(any(k in n for k in keys) for n in names) for _label, keys in PHASES)
+    if body and hit < 4:
+        warn(f"{fw}: §5 runs {len(body)} phases but matches only {hit} of the six standard ones "
+             f"({[p[0] for p in PHASES]}) — see CONVENTION.md §5")
+
+    mins = []
+    for r in body:
+        cell = r.split("|")[2].strip()
+        if cell.isdigit():
+            mins.append(int(cell))
+    if duration and mins and abs(sum(mins) - duration) > max(5, duration * 0.15):
+        warn(f"{fw}: §5 `Min` column sums to {sum(mins)} but `duration_min` is {duration}")
 
 
 def require(d: dict, key: str, where: str, typ=None) -> bool:
@@ -133,9 +228,8 @@ if course:
     if "kit_version" not in course:
         warn(f"{W}: add `kit_version` for traceability")
 
-for name in ("curriculum.md", "overview.md"):
-    if not (ROOT / name).exists():
-        err(f"{name}: missing at repo root")
+if not (ROOT / "curriculum.md").exists():
+    err("curriculum.md: missing at repo root")
 
 # ---------------------------------------------------------------- root layout
 lesson_dirs: dict[str, Path] = {}
@@ -153,9 +247,6 @@ for p in sorted(ROOT.iterdir()):
 # ---------------------------------------------------------------- lessons
 seen_ids: dict[str, str] = {}
 allowed_h2 = {k: set(v) for k, v in CORE_H2.items()}
-if track in TRACK_H2:
-    for f, hs in TRACK_H2[track].items():
-        allowed_h2.setdefault(f, set()).update(hs)
 
 for dname, d in lesson_dirs.items():
     where = dname
@@ -175,6 +266,7 @@ for dname, d in lesson_dirs.items():
     # lesson.yaml
     ly = d / "lesson.yaml"
     lesson_id = None
+    lesson_duration = None
     if ly.exists():
         L = load_yaml(ly) or {}
         lw = f"{where}/lesson.yaml"
@@ -187,7 +279,8 @@ for dname, d in lesson_dirs.items():
             seen_ids[lesson_id] = dname
         require(L, "title", lw, str)
         require(L, "summary", lw, str)
-        require(L, "duration_min", lw, int)
+        if require(L, "duration_min", lw, int):
+            lesson_duration = L["duration_min"]
         if "tier" not in L:
             warn(f"{lw}: no `tier` set")
         elif course.get("tiers"):
@@ -195,13 +288,16 @@ for dname, d in lesson_dirs.items():
             if L["tier"] not in tier_ids:
                 err(f"{lw}: `tier` `{L['tier']}` is not a tier id in course.yaml ({sorted(tier_ids)})")
         skills = L.get("thinking_skills") or []
-        if not skills:
-            warn(f"{lw}: no `thinking_skills` listed")
-        for s in skills:
-            if s not in SKILLS:
-                err(f"{lw}: `thinking_skills` contains `{s}`; allowed: {sorted(SKILLS)}")
-        if len(skills) > 2:
-            warn(f"{lw}: {len(skills)} thinking skills — pedagogy says emphasise one or two")
+        if track == "ai-fluency":
+            if not skills:
+                warn(f"{lw}: no `thinking_skills` listed")
+            for s in skills:
+                if s not in SKILLS:
+                    err(f"{lw}: `thinking_skills` contains `{s}`; allowed: {sorted(SKILLS)}")
+            if len(skills) > 2:
+                warn(f"{lw}: {len(skills)} thinking skills — TRACK.md says emphasise one or two")
+        elif skills:
+            warn(f"{lw}: `thinking_skills` is an ai-fluency field; drop it on the {track} track")
         for v in L.get("video") or []:
             if not isinstance(v, dict) or "url" not in v:
                 err(f"{lw}: each `video` entry needs `label` and `url`")
@@ -220,67 +316,101 @@ for dname, d in lesson_dirs.items():
             err(f"{fw}: starts with YAML frontmatter. Remove it; metadata belongs in lesson.yaml")
         if ABS_GITHUB_RE.search(text):
             err(f"{fw}: contains an absolute github.com link. Use relative links")
-        ok = allowed_h2.get(f, set())
-        for h in H2_RE.findall(text):
-            if h in ok:
-                continue
-            if f in NUMBERED_OK and NUMBERED_RE.match(h):
-                continue
-            err(f"{fw}: H2 `{h}` is not in the allowlist for {f}. "
-                f"Allowed: {sorted(ok)}{' or numbered tasks' if f in NUMBERED_OK else ''}. "
-                f"Use an allowed H2, or demote to H3.")
-        if f == "classwork.md" and "## In Class" in text:
-            block = text.split("## In Class", 1)[1]
-            block = re.split(r"^## ", block, maxsplit=1, flags=re.MULTILINE)[0]
-            for h3 in H3_RE.findall(block):
-                if not DURATION_RE.search(h3):
-                    warn(f"{fw}: In Class activity `{h3}` should end with a duration like `(8 min)`")
-        if f == "classwork.md":
+        if f == "lesson-plan.md":
+            found = H2_RE.findall(text)
+            expect = [f"{i}. {n}" for i, n in enumerate(PLAN_SECTIONS, 1)]
+            if found != expect:
+                extra = [h for h in found if h not in expect]
+                missing = [h for h in expect if h not in found]
+                detail = []
+                if missing:
+                    detail.append(f"missing {missing}")
+                if extra:
+                    detail.append(f"unexpected {extra}")
+                if not detail:
+                    detail.append("sections are out of order")
+                err(f"{fw}: the plan spine is fixed — H2s must be exactly "
+                    f"{expect}, numbered and in order ({'; '.join(detail)}). "
+                    f"Demote anything else to H3.")
+            check_class_activities(text, fw, lesson_duration)
+        else:
+            ok = allowed_h2.get(f, set())
+            for h in H2_RE.findall(text):
+                if h in ok:
+                    continue
+                if f in NUMBERED_OK and NUMBERED_RE.match(h):
+                    continue
+                err(f"{fw}: H2 `{h}` is not in the allowlist for {f}. "
+                    f"Allowed: {sorted(ok)}{' or numbered tasks' if f in NUMBERED_OK else ''}. "
+                    f"Use an allowed H2, or demote to H3.")
+        if f not in TEACHER_ONLY:
             low = text.lower()
-            if "solutions.md" in low or "teacher-notes.md" in low:
-                err(f"{fw}: student-facing file refers to a teacher-only file")
+            for tf in sorted(TEACHER_ONLY):
+                if tf in low:
+                    err(f"{fw}: student-facing file refers to the teacher-only file `{tf}`")
+        if f == "practice.md":
+            projects = [h for h in H3_RE.findall(text)] or \
+                       [l for l in text.splitlines() if NUMBERED_RE.match(l.strip())]
+            if len(projects) < 2:
+                warn(f"{fw}: {len(projects)} practice project(s) — a lesson should carry at least two, "
+                     f"so a fast student has a choice")
+        if f == STUDENT_FILE:
+            low = text.lower()
             for bad in ("fun", "exciting", "future-ready", "21st-century", "ai-powered", "unlock", "empower"):
                 if re.search(rf"\b{re.escape(bad)}\b", low):
                     warn(f"{fw}: uses banned word `{bad}` (see pedagogy.md voice rules)")
 
-    # quiz.yaml
-    qz = d / "quiz.yaml"
-    if qz.exists():
-        Q = load_yaml(qz) or {}
-        qw = f"{where}/quiz.yaml"
-        if require(Q, "id", qw, str) and lesson_id and Q["id"] != f"{lesson_id}-quiz":
-            err(f"{qw}: `id` must be `{lesson_id}-quiz`, got `{Q['id']}`")
-        if require(Q, "questions", qw, list):
-            qids = set()
-            for i, q in enumerate(Q["questions"], 1):
-                qq = f"{qw} question {i}"
-                if not isinstance(q, dict):
-                    err(f"{qq}: must be a mapping")
-                    continue
-                if require(q, "id", qq, str):
-                    if q["id"] in qids:
-                        err(f"{qq}: duplicate question id `{q['id']}`")
-                    qids.add(q["id"])
-                require(q, "prompt", qq, str)
-                require(q, "answer", qq)
-                if require(q, "type", qq, str) and q["type"] not in QUIZ_TYPES:
-                    err(f"{qq}: `type` must be one of {sorted(QUIZ_TYPES)}")
-                t = q.get("type")
-                if t in ("single", "multi"):
-                    if require(q, "options", qq, list):
-                        oids = {o.get("id") for o in q["options"] if isinstance(o, dict)}
-                        ans = q.get("answer")
-                        ans_list = ans if isinstance(ans, list) else [ans]
-                        for a in ans_list:
-                            if a not in oids:
-                                err(f"{qq}: `answer` `{a}` is not an option id ({sorted(oids)})")
-                        if t == "single" and isinstance(ans, list):
-                            err(f"{qq}: `single` question must have one answer, not a list")
-                if t == "predict":
-                    if require(q, "code_ref", qq, str) and not (d / q["code_ref"]).exists():
-                        err(f"{qq}: `code_ref` `{q['code_ref']}` does not exist in {where}/")
-                if "explanation" not in q:
-                    warn(f"{qq}: no `explanation` — the reveal is where the learning happens")
+# ---------------------------------------------------------------- assessments
+adir = ROOT / "assessments"
+if not adir.is_dir():
+    err("assessments/: missing at repo root. A course has three: "
+        + ", ".join(f"{k}.yaml" for k in ASSESSMENTS))
+else:
+    expected = set()
+    for stem in ASSESSMENTS:
+        expected |= {f"{stem}.yaml", f"{stem}-solutions.md"}
+    present = {c.name for c in adir.iterdir() if not c.name.startswith(".")}
+    for missing in sorted(expected - present):
+        err(f"assessments/{missing}: missing. A course has exactly three assessments, "
+            f"each with a teacher-only marking file")
+    for extra in sorted(present - expected):
+        err(f"assessments/{extra}: not an allowed file. Allowed: {sorted(expected)}")
+
+    for stem, (kind, want_q, want_min) in ASSESSMENTS.items():
+        ap = adir / f"{stem}.yaml"
+        if not ap.exists():
+            continue
+        A = load_yaml(ap) or {}
+        aw = f"assessments/{stem}.yaml"
+        if require(A, "id", aw, str) and A["id"] != stem:
+            err(f"{aw}: `id` must be `{stem}`, got `{A['id']}`")
+        covers = A.get("covers") or []
+        if not covers and not A.get("questions"):
+            # Assessments are written once the lessons they cover exist. A stub is not an error.
+            warn(f"{aw}: not written yet — {want_q} questions over the lessons it covers "
+                 f"(shape: assessment-template.yaml)")
+            continue
+        require(A, "title", aw, str)
+        if require(A, "kind", aw, str) and A["kind"] != kind:
+            err(f"{aw}: `kind` must be `{kind}`, got `{A['kind']}`")
+        if require(A, "duration_min", aw, int) and A["duration_min"] != want_min:
+            warn(f"{aw}: `duration_min` is {A['duration_min']}; the standard {kind} is {want_min}")
+        if not covers:
+            err(f"{aw}: missing required field `covers` (the lesson ids this assessment tests)")
+        for lid in covers:
+            if lid not in seen_ids:
+                err(f"{aw}: `covers` lists `{lid}` but no lesson folder has that id")
+        if require(A, "after", aw, str) and A["after"] not in seen_ids:
+            err(f"{aw}: `after` `{A['after']}` is not a lesson id")
+        qs = A.get("questions") or []
+        if not qs:
+            err(f"{aw}: missing required field `questions`")
+        elif len(qs) != want_q:
+            warn(f"{aw}: {len(qs)} questions; the standard {kind} is {want_q}")
+        check_questions(A, aw, ROOT, set(covers))
+        untested = [l for l in covers if l not in {q.get("lesson") for q in qs if isinstance(q, dict)}]
+        if untested:
+            warn(f"{aw}: no question tests {untested} — every lesson in `covers` should appear")
 
 # ---------------------------------------------------------------- cross checks
 if course.get("lessons"):

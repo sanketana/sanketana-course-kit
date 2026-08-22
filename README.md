@@ -12,16 +12,19 @@ core/                      identical in every course, evolves in lockstep
   CONVENTION.md            the rules: layout, ids, YAML shapes, heading allowlist
   pedagogy.md              what a Sanketana course is — read by humans and Claude
   curriculum-template.md   the shape of a course spine (curriculum.md)
+
   CLAUDE.md                standing instructions for Claude Code in a course repo
   scripts/validate.py      enforces the MUST rules; warns on the SHOULD rules
   scripts/new-course.sh    creates a new course repo from this kit
   scripts/sync-kit.sh      pulls kit updates into an existing course repo
+  assessment-template.yaml           shape of the three course assessments
+  assessment-solutions-template.md   shape of a teacher-only marking file
 tracks/                    one per lesson *shape*, not per language
   text-code/               Python, Java, JS — runnable code files, predict-the-output
   block-code/              Scratch, App Inventor — project files + screenshots
   ai-fluency/              prompt labs, tool judgment, ethics checks
   <track>/TRACK.md         track-specific rules and extra headings
-  <track>/_template/       one fully-written model lesson to copy from
+  <track>/_template/       one fully-written model lesson — lesson-plan.md + concepts.md
 CHANGELOG.md               what changed in each kit version
 ```
 
@@ -31,6 +34,12 @@ CHANGELOG.md               what changed in each kit version
 Start a Desktop chat. Give it `core/pedagogy.md` and `core/curriculum-template.md`
 plus your own brief (who it's for, what they build, how many sessions).
 Argue it out. End with a `curriculum.md` in the template's shape.
+
+`curriculum.md` is the **single source for everything written about the course**. Its parent-safe
+sections — Promise, Who this is for, Tiers, Capstone, the session table, What a parent sees,
+Questions parents ask — are what every parent-facing view is rendered from: the course's front page,
+and brochure copy for a designer. Those are outputs, produced when needed; there is no second
+document to keep in sync. If a parent-facing view needs a fact, add a field to the spine.
 
 ### 2. Create the course repo
 ```bash
@@ -62,7 +71,8 @@ Change the kit **in the kit repo**, never only inside a course. Then:
 cd <course-repo> && ./scripts/sync-kit.sh ~/path/to/sanketana-course-kit
 ```
 Mid-lesson niggles go in the course's `_drafts/KIT-TODO.md`; clear them in batches.
-Don't tag `kit-v1.0` until the first course validates clean end to end.
+Don't tag `kit-v1.0` until the first course validates clean end to end. Until then the kit is
+unreleased and can change freely — no migration scripts, no legacy paths.
 
 ## Validation
 ```bash
@@ -74,8 +84,9 @@ Requires `pip install pyyaml`. Claude Code runs this itself; GitHub Actions runs
 
 ## Core vs track — the test
 *Would a web app render it differently?* If no, it's core. Folder names, ids, ordering,
-audience-by-filename, `lesson.yaml` fields, quiz schema, the core heading list — core.
-What `code/` or `assets/` contains, extra headings with distinct meaning — track.
+audience-by-filename, `lesson.yaml` fields, the assessment schema and the three-assessment rule, the
+eight-section `lesson-plan.md` spine, the `concepts.md` heading list — core. What `code/` or `assets/` contains, which phases show up in the plan's
+§5 table, what a concepts page looks like in that track — track.
 
 ## Adding things later
 - New optional file, folder, field or heading → add to kit, bump minor version, sync. Nothing breaks.

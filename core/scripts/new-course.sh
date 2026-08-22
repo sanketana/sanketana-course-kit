@@ -14,7 +14,7 @@ KIT_VERSION="$(grep -m1 -oE '^## [0-9.]+' "$KIT/CHANGELOG.md" | sed 's/## //')"
 DEST="$PARENT/$SLUG"
 [[ -e "$DEST" ]] && { echo "$DEST already exists"; exit 1; }
 
-mkdir -p "$DEST/scripts" "$DEST/_drafts" "$DEST/.github/workflows"
+mkdir -p "$DEST/scripts" "$DEST/_drafts" "$DEST/.github/workflows" "$DEST/assessments"
 cp "$KIT/core/CONVENTION.md" "$KIT/core/pedagogy.md" "$KIT/core/CLAUDE.md" "$DEST/"
 cp "$KIT/core/scripts/validate.py" "$KIT/core/scripts/sync-kit.sh" "$DEST/scripts/"
 cp "$KIT/core/.github-workflow-validate.yml" "$DEST/.github/workflows/validate.yml"
@@ -22,6 +22,31 @@ cp "$KIT/tracks/$TRACK/TRACK.md" "$DEST/"
 cp -r "$KIT/tracks/$TRACK/_template" "$DEST/_template"
 cp "$KIT/core/curriculum-template.md" "$DEST/curriculum.md"
 echo "# KIT TODO — things to improve in sanketana-course-kit" > "$DEST/_drafts/KIT-TODO.md"
+
+# Three assessments: two formative, one summative. Scaffolded from the kit template.
+for A in formative-1:formative:10:15 formative-2:formative:10:15 summative:summative:20:45; do
+  STEM="${A%%:*}"; REST="${A#*:}"; KIND="${REST%%:*}"; REST="${REST#*:}"
+  NQ="${REST%%:*}"; MINS="${REST##*:}"
+  cat > "$DEST/assessments/$STEM.yaml" << YAML
+# $NQ questions, $MINS min. Write this once the lessons it covers exist.
+# Worked examples and the full field list: CONVENTION.md §6 and the kit's assessment-template.yaml
+id: $STEM
+title:
+kind: $KIND
+after:                           # the lesson id this runs after
+covers: []                       # the lesson ids it tests
+duration_min: $MINS
+questions: []
+YAML
+  cat > "$DEST/assessments/$STEM-solutions.md" << MD
+# $STEM — marking notes
+
+TEACHER-ONLY. Answers live in \`$STEM.yaml\`; this file holds what a machine can't mark —
+what a short answer needs for full marks, what a wrong answer tells you, what to re-teach.
+Number the sections to match the question ids.
+MD
+  echo "  assessments/$STEM.yaml — $NQ questions, $MINS min (stub)"
+done
 
 TITLE="$(echo "$SLUG" | sed -E 's/-/ /g; s/\b(.)/\u\1/g')"
 cat > "$DEST/course.yaml" << YAML
@@ -45,11 +70,6 @@ tiers: []
 lessons: []
 YAML
 
-cat > "$DEST/overview.md" << MD
-# $TITLE
-
-<!-- Parent-facing. What the student builds, what changes in how they think, who it's for. -->
-MD
 
 cat > "$DEST/.gitignore" << GI
 _drafts/

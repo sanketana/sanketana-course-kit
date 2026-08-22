@@ -10,17 +10,30 @@ For courses taught in block environments — Scratch, MIT App Inventor, micro:bi
 - A screenshot of the finished stage or screen: `finished.png`.
 - No `code/` folder in this track.
 
-## Extra H2 headings (classwork.md)
-- `Build Steps` — numbered H3s, each with a screenshot and one sentence of intent. Replaces a long `In Class` build.
-- `Remix Challenge` — change one thing and predict the effect before trying it. This is POE for blocks.
+## How the standard phases run in this track
+The six §5 phases are fixed in `CONVENTION.md`. What is track-specific is how two of them are run:
+- **Predict → Observe → Explain** — show a small script as a screenshot and ask what the sprite will *do*,
+  then run it. Prediction here is about behaviour, not printed output.
+- **Build** — the step screenshots (`step-NN-*.png`) belong to this one phase; name them in the row rather
+  than giving each step a row. A *remix* — change one thing, predict the effect, try it — belongs at the
+  end of Build.
+
+## What a practice project looks like here
+An addition to the lesson's project, not a new one from scratch — rebuilding the maze costs twenty
+minutes of nothing. Good stretches in this track: a second sprite with its own loop, something the
+project has to *remember* between frames, or three deliberately broken copies to predict and diagnose.
+No new screenshots needed; a fast student can find blocks without them.
+
+## What belongs on the concepts page
+Screenshots that illustrate the **idea**, not the build — a two-block script showing what fits in the
+hexagon slot, or the same check inside and outside a `forever` loop side by side. Step screenshots
+(`step-NN-*.png`) belong to the plan's §5, not here. Students cannot read block stacks from prose, so a
+concepts page in this track is mostly pictures with a paragraph each. ASCII sketches of block structure
+work well where a screenshot would date quickly.
 
 ## Prediction in blocks
 "Predict the Output" still applies: show a small script as a screenshot, ask what the sprite will do,
-then run. `quiz.yaml` `predict` questions use `code_ref` pointing at a screenshot in `assets/`.
-
-## Lesson shape that works
-Recap by showing last week's project (5 min) → predict on a tiny script (10 min) → Build Steps (25–30 min)
-→ Remix Challenge (10 min) → Reflection (5 min).
+then run. An assessment's `predict` questions use `code_ref` pointing at a screenshot in a lesson's `assets/`.
 
 ## Don't
 - Don't describe a block stack in prose when a screenshot would do.

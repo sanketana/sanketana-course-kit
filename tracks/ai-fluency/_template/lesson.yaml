@@ -6,7 +6,7 @@ summary: >
   predict what a prompt will get wrong before you send it.
 duration_min: 60
 tier: judgment
-thinking_skills:
+thinking_skills:                 # ai-fluency only; see TRACK.md
   - critical-evaluation
   - intentional-direction
 video:

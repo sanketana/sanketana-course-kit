@@ -1,0 +1,71 @@
+# Assessment template. A course has exactly three, in `assessments/`:
+#   formative-1.yaml   ~a third of the way in   10 questions   15 min
+#   formative-2.yaml   ~two thirds in           10 questions   15 min
+#   summative.yaml     the end                  20 questions   45 min
+# Formatives are diagnostic and low stakes — they run inside a lesson's Recap slot and
+# tell the teacher what to re-teach. The summative is its own session.
+# Every question names the lesson it tests, so a wrong answer points somewhere.
+
+id: formative-1                  # MUST  matches the filename stem
+title: Where we are so far       # MUST  student-facing; not "Test 1"
+kind: formative                  # MUST  formative | summative
+after: l08                       # MUST  runs after this lesson
+covers: [l01, l02, l03, l04, l05, l06, l07, l08]   # MUST  lesson ids, all real
+duration_min: 15                 # MUST
+
+questions:
+  # ---- single: one right answer out of three or four ----
+  - id: q1                       # MUST  unique within the assessment
+    type: single                 # MUST  single | multi | predict | short
+    lesson: l03                  # MUST  which lesson this tests; must be in `covers`
+    prompt: What does `print(7 > 5)` show?
+    options:                     # MUST for single/multi
+      - { id: a, text: "7 > 5" }
+      - { id: b, text: "True" }
+      - { id: c, text: "1" }
+      - { id: d, text: "yes" }
+    answer: b                    # MUST  option id, or a list of ids for multi
+    explanation: A comparison produces a boolean, and print shows it as the word True.
+
+  # ---- predict: the house method, assessed ----
+  - id: q2
+    type: predict
+    lesson: l03
+    prompt: Before running, write down exactly what this prints, one line per print.
+    code_ref: lesson-03-decisions/code/predict_decisions.py   # MUST for predict; path from the repo root
+    answer: |
+      True
+      False
+      False
+      Head back.
+    explanation: Line 3 is `5 > 5`, which is False. Line 4 takes the elif because 35 is below 50.
+
+  # ---- short: the student writes a sentence; a human marks it ----
+  - id: q3
+    type: short
+    lesson: l03
+    prompt: |
+      A program prints "Low battery" for anything from 20 to 49. Which two values would
+      you test first, and why those two?
+    answer: |
+      20 and 49 — the boundaries. A bug at the edge survives testing in the middle.
+    explanation: >
+      Looking for the habit, not the numbers. Full marks name a boundary and say why the
+      middle of a range does not find the bug. See formative-1-solutions.md for marking.
+
+  # ---- multi: more than one right answer ----
+  - id: q4
+    type: multi
+    lesson: l02
+    prompt: Which of these are true about a variable?
+    options:
+      - { id: a, text: "Its value can change while the program runs" }
+      - { id: b, text: "It has to be a number" }
+      - { id: c, text: "Something else in the program can read it back" }
+      - { id: d, text: "It is fixed once you write it" }
+    answer: [a, c]
+    explanation: Variables hold any type and are readable and re-writable; that's the point of them.
+
+  # ... continue to 10 questions for a formative, 20 for a summative.
+  # Spread them across the lessons in `covers` — every lesson should be tested at least once.
+  # Weight towards `predict` and `short`: this course claims to teach explanation, so assess it.

@@ -1,25 +1,24 @@
-# Homework — Lesson 3
+# Homework — Lesson 11
 
-## 1. Speed limit
+## 1. The shopping list
 
-Write `speed_check.py`. It reads a speed in km/h and prints `Fine` below 50, `Warning` from 50 to 69,
-and `Too fast` at 70 or above. Test the boundaries: 49, 50, 69, 70.
+Write `basket.py`. It should have a function `line_total(price, quantity)` that **returns** the cost of one
+line of a shopping basket.
 
-## 2. Predict first
+Use it three times — for three different items — store each result, and print the basket total at the end.
+The total has to be worked out from the returned values, not from anything the function printed.
 
-Without running it, write down what this prints. Then run it and note whether you were right.
+Then, deliberately: change your `return` to a `print` and run it again. Write down the error you get, word
+for word, and one sentence saying why it happens.
 
-```python
-x = 10
-if x > 5:
-    print("A")
-if x > 8:
-    print("B")
-else:
-    print("C")
-```
+## 2. Stretch — print or return?
 
-## 3. Stretch — three-way greeting
+Here are four functions somebody might write. For each one, say whether it should print, return, or do
+both — and give a reason in terms of what the rest of the program would need.
 
-Read an hour (0–23). Print `Good morning`, `Good afternoon`, or `Good evening`. Decide yourself
-where afternoon ends, and write one line explaining why you chose that.
+1. `greet(name)` — says hello to the user when the program starts.
+2. `is_weekend(day)` — works out whether a day is Saturday or Sunday.
+3. `save_score(score)` — writes a score to a file.
+4. `average(numbers)` — works out the mean of a list.
+
+One of the four is genuinely arguable. Say which, and why you'd go the way you'd go.
