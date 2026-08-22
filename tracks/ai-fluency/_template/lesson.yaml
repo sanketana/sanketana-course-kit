@@ -1,0 +1,16 @@
+# Model lesson. Copy the structure; replace every value.
+id: l00
+title: Asking a Better Question
+summary: >
+  The same task, three prompts, three very different answers. Learning to
+  predict what a prompt will get wrong before you send it.
+duration_min: 60
+tier: judgment
+thinking_skills:
+  - critical-evaluation
+  - intentional-direction
+video:
+  - label: Class recording
+    url: https://youtu.be/REPLACE
+prerequisites: [l01]
+tags: [prompting, evaluation]

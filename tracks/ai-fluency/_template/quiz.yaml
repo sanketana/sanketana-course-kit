@@ -1,0 +1,23 @@
+id: l00-quiz
+title: Check your understanding
+questions:
+  - id: q1
+    type: single
+    prompt: Which change to "Make me a study plan" most improves the result?
+    options:
+      - { id: a, text: "Adding 'please' and 'be very detailed'" }
+      - { id: b, text: "Adding your subjects, exam date, and hours available" }
+      - { id: c, text: "Asking twice" }
+    answer: b
+    explanation: The tool can only use what you give it. Detail it lacks is the gap in every generic answer.
+  - id: q2
+    type: predict
+    prompt: Read the prompt in this file and write down its biggest weak spot before seeing any output.
+    code_ref: assets/homework-prompt.md
+    answer: It never says when the exam is or how much time is available, so the plan can't be paced.
+    explanation: Missing constraints are the most common weak spot. Look for what the tool would have to guess.
+  - id: q3
+    type: short
+    prompt: In one sentence, who decides what a "good" output is?
+    answer: The person using the tool, by setting a standard before judging.
+    explanation: The tool optimises for plausible, not for your situation. The standard has to come from you.

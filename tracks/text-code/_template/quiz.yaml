@@ -1,0 +1,31 @@
+id: l00-quiz
+title: Check your understanding
+questions:
+  - id: q1
+    type: single
+    prompt: What does `print(7 > 5)` show?
+    options:
+      - { id: a, text: "7 > 5" }
+      - { id: b, text: "True" }
+      - { id: c, text: "1" }
+      - { id: d, text: "yes" }
+    answer: b
+    explanation: A comparison produces a boolean, and print shows it as the word True.
+  - id: q2
+    type: predict
+    prompt: Before running, write down exactly what `predict_decisions.py` prints, one line per print.
+    code_ref: code/predict_decisions.py
+    answer: |
+      True
+      False
+      False
+      Head back.
+    explanation: Line 3 is `5 > 5`, which is False. Line 4 hits the elif branch because 35 is below 50.
+  - id: q3
+    type: single
+    prompt: Which line has the bug?
+    options:
+      - { id: a, text: "if battery = 50:" }
+      - { id: b, text: "if battery == 50:" }
+    answer: a
+    explanation: A single `=` assigns. Python refuses to treat it as a question inside an if.

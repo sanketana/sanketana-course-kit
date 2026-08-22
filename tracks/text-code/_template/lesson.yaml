@@ -1,0 +1,15 @@
+# Model lesson. Copy the structure; replace every value.
+id: l00                          # permanent; take from curriculum.md
+title: Making Decisions
+summary: >
+  Programs that react: comparisons, if/else, and the assign-vs-compare bug
+  that catches everyone once.
+duration_min: 60
+tier: syntax                     # must match a tier id in course.yaml
+thinking_skills:                 # one or two, from the fixed vocabulary
+  - mental-modeling
+video:
+  - label: Class recording
+    url: https://youtu.be/REPLACE
+prerequisites: [l02]
+tags: [conditionals, boolean, comparison]

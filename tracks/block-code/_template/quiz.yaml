@@ -1,0 +1,18 @@
+id: l00-quiz
+title: Check your understanding
+questions:
+  - id: q1
+    type: single
+    prompt: The sprite is on white. Script is "when flag clicked → if touching black → say Ouch". You click the flag. What happens?
+    options:
+      - { id: a, text: "It says Ouch" }
+      - { id: b, text: "Nothing" }
+      - { id: c, text: "It waits until it touches black, then says Ouch" }
+    answer: b
+    explanation: The if runs once, at the moment of clicking, and the answer is no. Nothing waits unless there's a loop.
+  - id: q2
+    type: predict
+    prompt: Look at this script and predict what the sprite does when you press the right arrow three times.
+    code_ref: assets/predict-touching.png
+    answer: Moves right 15 steps in total and says nothing, because it never reaches black.
+    explanation: Each key press moves 5. The touching check isn't in a loop, so it never re-asks.
