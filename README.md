@@ -3,7 +3,7 @@
 The shared scaffolding every Sanketana School of Code course repo is built from.
 One kit, many courses. Courses are **content only** — student state never lives in git.
 
-**Kit version: 0.1** (pre-1.0: expected to change while the first course is built on it)
+**Kit version: 0.2** (pre-1.0: expected to change while the first course is built on it)
 
 ## What's in here
 
@@ -24,7 +24,9 @@ tracks/                    one per lesson *shape*, not per language
   block-code/              Scratch, App Inventor — project files + screenshots
   ai-fluency/              prompt labs, tool judgment, ethics checks
   <track>/TRACK.md         track-specific rules and extra headings
-  <track>/_template/       one fully-written model lesson — lesson-plan.md + concepts.md
+  <track>/_template/       one fully-written model lesson — lesson-plan.md + concepts.md,
+                           homework.md, practice.md, and optionally check.yaml (an unmarked
+                           self-check) and interactive/ (self-contained HTML exercises)
 CHANGELOG.md               what changed in each kit version
 ```
 
@@ -74,6 +76,9 @@ Change the kit **in the kit repo**, never only inside a course. Then:
 cd <course-repo>                      # the course is the current directory, never an argument
 bash ~/path/to/sanketana-course-kit/core/scripts/sync-kit.sh
 ```
+A course built on an earlier kit needs nothing changed to move to 0.2: everything 0.2 added is
+optional, `convention:` is still 1, so `sync-kit.sh` alone makes the new fields available.
+
 Mid-lesson niggles go in the course's `_drafts/KIT-TODO.md`; clear them in batches.
 Don't tag `kit-v1.0` until the first course validates clean end to end. Until then the kit is
 unreleased and can change freely — no migration scripts, no legacy paths.

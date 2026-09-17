@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.2 — what the view needs
+Additive only. `convention:` stays **1**, no existing course breaks, no migration script: a course
+written against 0.1 validates unchanged, and `sync-kit.sh` alone makes the new fields available.
+
+**Five optional `lesson.yaml` fields.** `outcomes` (2–4 lines, written to the student, not plan §4
+with the prefix stripped) · `project` (the named thing built in class — `name`, `brief`, and a
+`starter` path that must exist) · `resources` (student-facing links; `label` and an http(s) `url`) ·
+`interactive` (declared exercises) · and `thinking_skills`, see below. The validator enforces what is
+required-when-present, and warns when `outcomes` falls outside 2–4.
+
+**An optional per-lesson `check.yaml` — and it is never marked.** One to three questions the view
+offers a student between sessions, weighted to `predict` and `short`. The state store may record that
+it was attempted and nothing more; the three assessments in §6 remain the only marked instrument,
+for the reason `pedagogy.md` gives. Reaching for `kind`, `covers` or `after` is an error, because
+that is how a self-check quietly becomes an assessment.
+
+**An optional `interactive/` folder, under a sandbox contract.** One exercise is one self-contained
+`.html` file: inline CSS and JS, no network of any kind, embedded by the view in
+`<iframe sandbox="allow-scripts">`. The validator names the line when it finds an external script,
+stylesheet, `@import`, cross-origin `fetch`, `XMLHttpRequest` or remote iframe. Completion is
+signalled by `postMessage` and stored by the view, never in the repo.
+
+**Notebooks in `code/` on the text-code track.** `notebook_*.ipynb`, runnable top-to-bottom in Colab
+with no local setup, committed with outputs cleared. The validator checks both.
+
+**`thinking_skills` now applies to every track.** The five-id vocabulary moved from
+`tracks/ai-fluency/TRACK.md` into `CONVENTION.md` §4; that TRACK.md keeps only which skills carry the
+weight in that track. The id check no longer looks at `track`.
+
 ## 0.1 — initial
 Unreleased. The kit changes freely until the first course is built on it; there are no legacy
 paths and no migration scripts.

@@ -1,6 +1,6 @@
 # Sanketana Course Repo Convention
 
-**Convention version: 1** (kit 0.1)
+**Convention version: 1** (kit 0.2)
 
 Every Sanketana course lives in its own GitHub repo and follows this layout. The repo is the
 **content** source of truth only. Student state — progress, quiz attempts, submissions, notes
@@ -340,8 +340,8 @@ numbers" is a worksheet. Reference solutions, where a project needs one, go in `
 | solutions.md | mirrors homework numbering |
 | practice.md | `Practice Projects` · numbered projects |
 
-Convention 2 has no track-specific headings: what used to be an extra heading is now a phase in §5. Tracks
-still say in `TRACK.md` what belongs on a concepts page for that track.
+There are no track-specific headings: what would have been one is a phase in §5. Tracks still say in
+`TRACK.md` what belongs on a concepts page for that track.
 
 ## 6. Assessments
 
@@ -424,7 +424,16 @@ an entry. Shape: `assessment-solutions-template.md`.
 - Renaming, removing, or making something required: bump `convention`, ship a migration script,
   upgrade courses one at a time. The view keeps rendering older conventions.
 
+**0.2 is the first case of the first rule.** It added optional `lesson.yaml` fields (§4), an optional
+`check.yaml` (§3a) and an optional `interactive/` folder (§3b), and widened `thinking_skills` to every
+track. `convention:` stays **1** and a course written against 0.1 validates unchanged — run
+`sync-kit.sh` and the new fields are simply available.
+
 ## 10. Out of scope (deliberately)
 
 Student progress, grades, submissions, per-student notes → state store. Rendering, navigation → the view.
 Scheduling, enrolment → Zoho.
+
+Completion of an `interactive/` exercise and attempts at a lesson's `check.yaml` → state store, recorded
+as **attempted/completed only**. Neither carries a score, and nothing about a particular student's
+answers goes anywhere near this repo.
