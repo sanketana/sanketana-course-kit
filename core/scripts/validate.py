@@ -102,6 +102,16 @@ CORE_H2 = {
 NUMBERED_OK = {"homework.md", "solutions.md", "practice.md"}
 
 INTERACTIVE_ID_RE = re.compile(r"^[a-z0-9-]+$")
+INTERACTIVE_MAX_KB = 200
+# The sandbox contract (§3b): an exercise is self-contained and never reaches the network.
+EXTERNAL_RES = [
+    (re.compile(r"<script[^>]*\ssrc\s*=\s*[\"']?(?:https?:)?//", re.I), "external <script src>"),
+    (re.compile(r"<link[^>]*\shref\s*=\s*[\"']?(?:https?:)?//", re.I), "external <link href>"),
+    (re.compile(r"@import\s+(?:url\()?\s*[\"']?(?:https?:)?//", re.I), "@import of a remote stylesheet"),
+    (re.compile(r"\bfetch\s*\(\s*[\"'`](?:https?:)?//", re.I), "fetch() to another origin"),
+    (re.compile(r"\bXMLHttpRequest\b"), "XMLHttpRequest"),
+    (re.compile(r"<iframe[^>]*\ssrc\s*=\s*[\"']?(?:https?:)?//", re.I), "external <iframe src>"),
+]
 FRONTMATTER_RE = re.compile(r"^---\s*\n")
 H2_RE = re.compile(r"^## +(.+?)\s*$", re.MULTILINE)
 H3_RE = re.compile(r"^### +(.+?)\s*$", re.MULTILINE)
@@ -158,6 +168,26 @@ def check_questions(Q: dict, qw: str, base: Path, covers) -> None:
                 err(f"{qq}: `code_ref` `{q['code_ref']}` does not exist")
         if "explanation" not in q:
             warn(f"{qq}: no `explanation` — the reveal is where the learning happens")
+
+
+def check_interactive_html(path: Path, fw: str) -> None:
+    """§3b: self-contained, no network, and small enough to embed."""
+    kb = path.stat().st_size / 1024
+    if kb > INTERACTIVE_MAX_KB:
+        warn(f"{fw}: {kb:.0f} KB — an interactive exercise should stay under "
+             f"{INTERACTIVE_MAX_KB} KB; inline a smaller image or drop a font")
+    try:
+        text = path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        err(f"{fw}: not valid UTF-8")
+        return
+    for lineno, line in enumerate(text.splitlines(), 1):
+        for rx, what in EXTERNAL_RES:
+            if rx.search(line):
+                err(f"{fw}:{lineno}: {what} — an interactive exercise must be self-contained. "
+                    f"Inline it, or use a file in the lesson's assets/. See CONVENTION.md §3b. "
+                    f"Line: {line.strip()[:90]}")
+                break
 
 
 def check_class_activities(plan: str, fw: str, duration) -> None:
@@ -372,6 +402,7 @@ for dname, d in lesson_dirs.items():
         if idir.is_dir():
             for hp in sorted(idir.glob("*.html")):
                 rel = f"interactive/{hp.name}"
+                check_interactive_html(hp, f"{where}/{rel}")
                 if rel not in declared:
                     warn(f"{where}/{rel}: not declared in lesson.yaml `interactive` — "
                          f"the view only shows declared exercises")

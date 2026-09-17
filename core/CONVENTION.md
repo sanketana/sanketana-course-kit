@@ -149,6 +149,39 @@ questions:                       # MUST  1–3
 can only be written once the lesson folder has its final name. That is why the model lessons in
 `_template/` use `short` and `single`: a template doesn't know what it will be called.
 
+### 3b. `interactive/` — the sandbox contract
+
+One exercise is one `.html` file, and it must stand alone. Declare each one in `lesson.yaml:
+interactive` (§4); the view only shows declared exercises.
+
+**Self-contained. MUST NOT reach the network.** Inline `<style>` and `<script>` only — no
+`<script src="http…">`, no `<link href="http…">`, no `@import url(http…)`, no `fetch(` or
+`XMLHttpRequest` to another origin, and no protocol-relative `//cdn…` either. Images are inline
+`data:` URIs, or files in the lesson's `assets/` referenced relatively.
+
+**The view embeds it in `<iframe sandbox="allow-scripts">`.** No same-origin, no storage, no
+navigation. `localStorage`, cookies and `window.top` are unavailable or will throw — write the
+exercise so it never needs them, and never so it breaks when they fail.
+
+**Completion signal — optional, and exactly this shape:**
+
+```js
+window.parent.postMessage({
+  kit: "sanketana", lesson: "l05", interactive: "chunking", event: "complete"
+}, "*");
+```
+
+`lesson` and `interactive` must match `lesson.yaml`. Anything else in the message is ignored. Because
+those two ids are written into the file, **an exercise copied from `_template/` carries the template's
+ids until you change them** — the validator does not catch that today.
+
+**Theme.** Legible at 380px wide, on a phone, without horizontal scrolling. Define colours as CSS
+variables on `:root` so the view can override them later, and don't hard-code a page background —
+let the host's show through.
+
+Completion is signalled, not stored: what a student did goes to the state store, never into the repo
+(§10).
+
 ## 4. `lesson.yaml`
 
 ```yaml

@@ -22,6 +22,10 @@ project:
     The same conversion written out three times, pulled into one function —
     then made usable by handing its answer back instead of printing it.
   starter: code/starter_temps.py
+interactive:
+  - id: return-stepper
+    label: Predict the return value
+    file: interactive/return-stepper.html
 resources:
   - label: Python docs — defining functions
     url: https://docs.python.org/3/tutorial/controlflow.html#defining-functions

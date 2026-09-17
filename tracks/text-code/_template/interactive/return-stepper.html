@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<!-- Sanketana interactive exercise. Self-contained: no network, no storage. See CONVENTION.md §3b.
+     WHEN YOU COPY THIS LESSON: change the two ids in the postMessage at the bottom to this
+     lesson's real `lesson.yaml: id` and `interactive[].id`. Nothing checks them for you. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Predict the return value</title>
+<style>
+  :root {
+    --bg: transparent;           /* let the host page show through */
+    --fg: #1a1a1a; --muted: #666; --line: #d8d8d8;
+    --code-bg: #f4f4f4; --accent: #1a5fb4; --ok: #26734d;
+    --radius: 8px; --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --fg: #eceff4; --muted: #a8b0bd; --line: #3a4150;
+      --code-bg: #232833; --accent: #7fb2f0; --ok: #7fd1a4;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; background: var(--bg); color: var(--fg);
+         font: 16px/1.5 var(--font); }
+  h1 { font-size: 1.05rem; margin: 0 0 4px; }
+  p.sub { margin: 0 0 16px; color: var(--muted); font-size: .9rem; }
+  .card { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+  pre { background: var(--code-bg); border-radius: var(--radius); padding: 12px;
+        margin: 0 0 12px; overflow-x: auto; font: 14px/1.5 var(--mono); }
+  label { display: block; font-size: .9rem; margin-bottom: 6px; }
+  input { width: 100%; padding: 10px; font: 15px var(--mono); color: var(--fg);
+          background: var(--code-bg); border: 1px solid var(--line);
+          border-radius: var(--radius); }
+  button { margin-top: 12px; padding: 10px 16px; font: 600 15px var(--font);
+           color: var(--bg, #fff); background: var(--accent); border: 0;
+           border-radius: var(--radius); cursor: pointer; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .reveal { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .reveal b { color: var(--ok); }
+  .yours { color: var(--muted); font-size: .9rem; }
+  .steps { margin-top: 14px; color: var(--muted); font-size: .85rem; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<h1>Predict the return value</h1>
+<p class="sub">Write your answer down before you look. That is the whole exercise.</p>
+
+<div class="card">
+  <pre id="code"></pre>
+  <label for="guess" id="question"></label>
+  <input id="guess" autocomplete="off" spellcheck="false" placeholder="type your prediction">
+  <button id="commit">Commit</button>
+  <div id="reveal" class="reveal hidden">
+    <p class="yours">You said: <span id="yours"></span></p>
+    <p><b>Answer:</b> <code id="answer"></code></p>
+    <p id="why"></p>
+    <button id="next">Next</button>
+  </div>
+  <p class="steps" id="steps"></p>
+</div>
+
+<script>
+  var STEPS = [
+    { code: 'def shout(word):\n    print(word.upper())\n\nx = shout("hello")',
+      q: 'What is in x?', a: 'None',
+      why: 'shout printed HELLO, then ended without a return. A function with no return hands back None — a real value, not an error.' },
+    { code: 'def whisper(word):\n    return word.lower()\n\ny = whisper("HELLO")',
+      q: 'What is in y?', a: '"hello"',
+      why: 'return sends the value back to the line that asked for it, so y holds it. Nothing appeared on screen, and that is correct.' },
+    { code: 'def double(n):\n    return n * 2\n\ndouble(5)',
+      q: 'What appears on the screen?', a: 'nothing',
+      why: 'The answer came back and nobody caught it. Returning is not showing — to see it you need print(double(5)).' }
+  ];
+  var i = 0;
+  var $ = function (id) { return document.getElementById(id); };
+
+  function render() {
+    var s = STEPS[i];
+    $('code').textContent = s.code;
+    $('question').textContent = s.q;
+    $('guess').value = '';
+    $('guess').disabled = false;
+    $('commit').disabled = false;
+    $('reveal').className = 'reveal hidden';
+    $('next').textContent = (i === STEPS.length - 1) ? 'Finish' : 'Next';
+    $('steps').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    $('guess').focus();
+  }
+
+  $('commit').addEventListener('click', function () {
+    var s = STEPS[i];
+    $('yours').textContent = $('guess').value.trim() || '(nothing written down)';
+    $('answer').textContent = s.a;
+    $('why').textContent = s.why;
+    $('guess').disabled = true;
+    $('commit').disabled = true;
+    $('reveal').className = 'reveal';
+  });
+
+  $('guess').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !$('commit').disabled) { $('commit').click(); }
+  });
+
+  $('next').addEventListener('click', function () {
+    if (i < STEPS.length - 1) { i += 1; render(); return; }
+    $('steps').textContent = 'Done — all ' + STEPS.length + ' predictions committed.';
+    $('reveal').className = 'reveal hidden';
+    try {
+      window.parent.postMessage({
+        kit: 'sanketana', lesson: 'l00', interactive: 'return-stepper', event: 'complete'
+      }, '*');
+    } catch (e) { /* embedded without a parent; nothing to report */ }
+  });
+
+  render();
+</script>
+</body>
+</html>
