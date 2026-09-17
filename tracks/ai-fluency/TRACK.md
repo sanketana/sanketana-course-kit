@@ -31,21 +31,14 @@ Real prompts and real outputs, quoted — the difference between a vague prompt 
 quote a real student's conversation; write the examples yourself. `Common Mistakes` in this track is about
 judgment habits (ranking by formatting, writing the standard afterwards), not syntax.
 
-## Thinking skills (this track only)
-Working *with* AI is mostly judgment, so in this track we name the judgment explicitly. `lesson.yaml` takes an
-optional `thinking_skills` list; the vocabulary is fixed, and these exact ids are the only ones the validator
-accepts:
+## Thinking skills in this track
+The vocabulary, and the rule that a lesson emphasises one or two of them, are in `CONVENTION.md` §4 and
+apply to every track. What is track-specific is which ones carry the weight here.
 
-| id | what it looks like in a lesson |
-|---|---|
-| `mental-modeling` | the student can predict what the tool will do before it does it |
-| `intentional-direction` | the student decides what to build and why before touching the tool |
-| `critical-evaluation` | the student judges output — theirs, a peer's, an AI's — against a standard |
-| `selective-judgment` | the student chooses between valid options and can say why |
-| `ethical-reasoning` | the student notices who is affected by what they build |
-
-Emphasise one or two per lesson, not all five. Name them in `lesson.yaml`; don't lecture them in the prose.
-Other tracks don't use this field.
+Working *with* AI is mostly judgment, so `critical-evaluation` and `selective-judgment` appear in most
+lessons on this track — they are what the tool judgment inside **Build** exists to produce.
+`ethical-reasoning` rides on **Reflection** where the lesson has an ethics beat, and `mental-modeling`
+here means predicting what a *prompt* will get wrong, not what a program will print.
 
 ## Prediction in this track
 Prediction is about *quality*, not output. "Before running, say what this prompt will get wrong." An

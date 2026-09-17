@@ -37,5 +37,5 @@ brochure copy for a designer — is rendered from them on request. There is no s
 the model lesson and the scripts. A course root is `course.yaml`, `curriculum.md`, `assessments/`,
 the lesson folders and `CLAUDE.md`, which stays put because Claude Code reads it from there.
 
-**`thinking_skills` is ai-fluency only.** The vocabulary lives in that track's `TRACK.md`; the
-validator checks it there and warns if it appears elsewhere.
+**`thinking_skills`** — the five-id vocabulary, introduced on the ai-fluency track and living in that
+track's `TRACK.md`. (0.2 widens it to every track and moves the table into `CONVENTION.md` §4.)

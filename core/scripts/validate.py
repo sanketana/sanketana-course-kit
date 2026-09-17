@@ -36,7 +36,7 @@ def warn(msg: str) -> None:
 # ---------------------------------------------------------------- constants
 CONVENTION = 1
 TRACKS = {"text-code", "block-code", "ai-fluency"}
-SKILLS = {                       # ai-fluency track only
+SKILLS = {                       # CONVENTION.md §4 — valid on every track
     "mental-modeling",
     "intentional-direction",
     "critical-evaluation",
@@ -342,16 +342,11 @@ for dname, d in lesson_dirs.items():
             if L["tier"] not in tier_ids:
                 err(f"{lw}: `tier` `{L['tier']}` is not a tier id in course.yaml ({sorted(tier_ids)})")
         skills = L.get("thinking_skills") or []
-        if track == "ai-fluency":
-            if not skills:
-                warn(f"{lw}: no `thinking_skills` listed")
-            for s in skills:
-                if s not in SKILLS:
-                    err(f"{lw}: `thinking_skills` contains `{s}`; allowed: {sorted(SKILLS)}")
-            if len(skills) > 2:
-                warn(f"{lw}: {len(skills)} thinking skills — TRACK.md says emphasise one or two")
-        elif skills:
-            warn(f"{lw}: `thinking_skills` is an ai-fluency field; drop it on the {track} track")
+        for sk in skills:
+            if sk not in SKILLS:
+                err(f"{lw}: `thinking_skills` contains `{sk}`; allowed: {sorted(SKILLS)}")
+        if len(skills) > 2:
+            warn(f"{lw}: {len(skills)} thinking skills — CONVENTION.md §4 says emphasise one or two")
         for v in L.get("video") or []:
             if not isinstance(v, dict) or "url" not in v:
                 err(f"{lw}: each `video` entry needs `label` and `url`")

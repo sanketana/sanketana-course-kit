@@ -11,6 +11,8 @@ video:
     url: https://youtu.be/REPLACE
 prerequisites: [l10]
 tags: [functions, return, none]
+thinking_skills:
+  - mental-modeling
 
 outcomes:                        # student-facing; what they can do afterwards
   - say where a value goes when a function returns it, and where it goes when it only prints

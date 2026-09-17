@@ -11,6 +11,8 @@ video:
     url: https://youtu.be/REPLACE
 prerequisites: [l02]
 tags: [scratch, if-else, sensing]
+thinking_skills:
+  - mental-modeling
 
 outcomes:                        # student-facing; what they can do afterwards
   - say what fits in the hexagon slot, and why a number doesn't
