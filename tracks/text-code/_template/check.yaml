@@ -1,0 +1,35 @@
+# Unmarked self-check — the student runs this on their own between sessions.
+# Never marked, never reported. One to three questions, weighted to predict and short.
+# A `predict` question needs a `code_ref` from the repo root, so it can only be written
+# once this lesson folder has its real name — hence short and single here.
+id: check
+questions:
+  - id: q1
+    type: short
+    prompt: |
+      A function ends without a `return`. What does the line that called it get back?
+    answer: |
+      None — which is a real value, not an error. It means nothing was handed back.
+    explanation: >
+      Looking for the word None and the idea that it is a value. "Nothing" on its own
+      is the answer to check again, because it is what every student says first.
+  - id: q2
+    type: single
+    prompt: Which of these lines can use the answer from `to_celsius(67)` later on?
+    options:
+      - { id: a, text: "def to_celsius(f): print((f - 32) * 5 / 9)" }
+      - { id: b, text: "def to_celsius(f): return (f - 32) * 5 / 9" }
+    answer: b
+    explanation: >
+      The printing version puts marks on a screen and hands back None. Only the
+      returning one produces a value the next line can add, store or pass on.
+  - id: q3
+    type: short
+    prompt: |
+      You wrote a function that works, but `total = my_function()` gives a TypeError
+      when you try to add `total` to something. What is the one word missing, and where?
+    answer: |
+      `return`, inside the function, in front of the value it works out.
+    explanation: >
+      The point is that the error is about the function, not the line that failed.
+      A student who goes looking at the addition has not got the mental model yet.

@@ -89,7 +89,7 @@ PLAN_SECTIONS = [
 ]
 
 LESSON_FILES_REQUIRED = {"lesson.yaml", "lesson-plan.md", "concepts.md", "homework.md", "practice.md"}
-LESSON_FILES_OPTIONAL = {"solutions.md"}
+LESSON_FILES_OPTIONAL = {"solutions.md", "check.yaml"}
 STUDENT_FILE = "concepts.md"
 TEACHER_ONLY = {"lesson-plan.md", "solutions.md"}
 CORE_H2 = {
@@ -120,7 +120,7 @@ def load_yaml(path: Path):
 
 
 def check_questions(Q: dict, qw: str, base: Path, covers) -> None:
-    """Validate an assessment's `questions:` list."""
+    """Validate a `questions:` list. `covers=None` means a self-check, which has no `lesson`."""
     if not isinstance(Q.get("questions"), list):
         return
     qids = set()
@@ -137,8 +137,11 @@ def check_questions(Q: dict, qw: str, base: Path, covers) -> None:
         require(q, "answer", qq)
         if require(q, "type", qq, str) and q["type"] not in QUIZ_TYPES:
             err(f"{qq}: `type` must be one of {sorted(QUIZ_TYPES)}")
-        if require(q, "lesson", qq, str) and q["lesson"] not in covers:
-            err(f"{qq}: `lesson` `{q['lesson']}` is not in this assessment's `covers`")
+        if covers is not None:
+            if require(q, "lesson", qq, str) and q["lesson"] not in covers:
+                err(f"{qq}: `lesson` `{q['lesson']}` is not in this assessment's `covers`")
+        elif "lesson" in q:
+            err(f"{qq}: a self-check has no `lesson` field — the lesson is implicit")
         t = q.get("type")
         if t in ("single", "multi"):
             if require(q, "options", qq, list):
@@ -372,6 +375,29 @@ for dname, d in lesson_dirs.items():
                 if rel not in declared:
                     warn(f"{where}/{rel}: not declared in lesson.yaml `interactive` — "
                          f"the view only shows declared exercises")
+
+    # check.yaml — an unmarked self-check, never an assessment
+    cy = d / "check.yaml"
+    if cy.exists():
+        C = load_yaml(cy) or {}
+        cw = f"{where}/check.yaml"
+        if require(C, "id", cw, str) and C["id"] != "check":
+            err(f"{cw}: `id` must be the literal `check`, got `{C['id']}`")
+        for banned in ("kind", "covers", "after"):
+            if banned in C:
+                err(f"{cw}: `{banned}` belongs to an assessment, not a self-check. "
+                    f"A self-check is never marked; see CONVENTION.md §3a")
+        cqs = C.get("questions")
+        if not isinstance(cqs, list) or not cqs:
+            err(f"{cw}: missing required field `questions` (1 to 3)")
+        elif len(cqs) > 3:
+            err(f"{cw}: {len(cqs)} questions — a self-check is 1 to 3. "
+                f"More than that is an assessment, and assessments are course-level (§6)")
+        check_questions(C, cw, ROOT, None)
+        types = {q.get("type") for q in cqs if isinstance(q, dict)} if isinstance(cqs, list) else set()
+        if types == {"single"}:
+            warn(f"{cw}: every question is `single` — weight a self-check towards `predict` and "
+                 f"`short`, or the student passes it by recognising a shape")
 
     # markdown files
     for f in present:

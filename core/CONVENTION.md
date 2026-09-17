@@ -90,9 +90,11 @@ lesson-03-<slug>/
   concepts.md          MUST   student-facing — the textbook page for this lesson's idea
   homework.md          MUST   student-facing (may say "No homework this lesson")
   practice.md          MUST   student-facing extra projects for a fast student (§5)
+  check.yaml           opt    student-facing self-check, never marked (§3a)
   solutions.md         opt    TEACHER-ONLY
   code/                opt    see TRACK.md
   assets/              opt    images, project files, referenced relatively
+  interactive/         opt    self-contained HTML exercises (§3b)
 ```
 
 - MUST: folder name matches `lesson-NN-<slug>`, NN two digits. NN is for humans browsing GitHub;
@@ -116,6 +118,36 @@ The test: if a sentence only makes sense while sitting in the lesson, it belongs
 still make sense a year later, it belongs in `concepts.md`.
 
 Homework is in neither. It lives in `homework.md` (student) and `solutions.md` (teacher), once.
+
+### 3a. `check.yaml` — an unmarked self-check
+
+**This is not a quiz and it is never marked.** It is a between-sessions "did it land?" that the view
+offers the student on their own; the state store may record that it was attempted, and nothing more. No
+score reaches a teacher, a parent or a report. The three assessments in §6 remain the only marked
+instrument in the course, and the reason for that is in `pedagogy.md`: a marked quiz after every session
+teaches a student to answer questions about the last hour, which is not what we claim to teach.
+
+Optional, and a lesson is not worse for lacking one. **One to three questions**, weighted to `predict`
+and `short` — a self-check made of multiple choice is a self-check a student can pass by recognising a
+shape.
+
+Same question shape as an assessment (§6), minus `lesson` — which lesson it belongs to is implicit —
+and with no `covers`, `after` or `kind`:
+
+```yaml
+id: check                        # MUST  the literal string "check"
+questions:                       # MUST  1–3
+  - id: q1
+    type: predict                # single | multi | predict | short
+    prompt: Before running, write down what `print(len("strawberry"))` shows.
+    code_ref: lesson-05-tokens/code/predict_len.py   # MUST for predict; path from the repo root
+    answer: "10"
+    explanation: len counts characters, not tokens. A tokenizer would give a different number.
+```
+
+`code_ref` is a path from the **repo root**, the same as in an assessment — so a `predict` question here
+can only be written once the lesson folder has its final name. That is why the model lessons in
+`_template/` use `short` and `single`: a template doesn't know what it will be called.
 
 ## 4. `lesson.yaml`
 

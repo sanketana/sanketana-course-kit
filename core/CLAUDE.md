@@ -20,8 +20,10 @@ The kit files live in `.kit/` — hidden from the root so a teacher isn't wading
 - `practice.md` is required in every lesson: two or three projects, each harder than the classwork,
   each with a **The stretch** line and a **Done when** line. Name the first-choice project in the
   plan's §6.
-- Assessments are course-level, not per-lesson: three files in `assessments/`, written once the
-  lessons they cover exist. Never add a `quiz.yaml` to a lesson folder.
+- Assessments are course-level and the only marked instrument: three files in `assessments/`,
+  written once the lessons they cover exist. A lesson **may** carry `check.yaml` — at most three
+  unmarked self-check questions, weighted to `predict` and `short`, never scored or reported.
+  Never add a `quiz.yaml` to a lesson folder.
 - `lesson-plan.md` is the only place the class flow lives; its §5 table is the whole hour.
   `concepts.md` is a textbook page about the idea — written to the student, no timings, no steps.
   If a sentence only makes sense during the lesson it belongs in the plan; if it still makes sense a

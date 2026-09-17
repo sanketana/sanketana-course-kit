@@ -1,0 +1,26 @@
+# Unmarked self-check — the student runs this on their own between sessions.
+# Never marked, never reported. One to three questions, weighted to predict and short.
+id: check
+questions:
+  - id: q1
+    type: short
+    prompt: |
+      You are about to send a prompt. Name one thing the tool cannot know about your
+      situation unless you tell it.
+    answer: |
+      Anything specific to them — their subjects, their deadline, the hours they
+      actually have, what they have already tried.
+    explanation: >
+      Any concrete personal constraint counts. "More detail" does not: the habit is
+      naming the missing fact, not wanting the answer to be better.
+  - id: q2
+    type: short
+    prompt: |
+      Two answers come back. One is longer and has a table. Why is that not enough
+      to rank them?
+    answer: |
+      Because neither is being judged against anything. A standard written down
+      first is what makes one of them better than the other.
+    explanation: >
+      Full marks name the standard. A student who says "the longer one might be
+      wrong" has half of it — ask them what would settle it.
