@@ -8,6 +8,7 @@ Usage (from a course repo root):
 
 Error messages are written so that Claude Code can fix them without asking.
 """
+import json
 import re
 import sys
 from pathlib import Path
@@ -168,6 +169,24 @@ def check_questions(Q: dict, qw: str, base: Path, covers) -> None:
                 err(f"{qq}: `code_ref` `{q['code_ref']}` does not exist")
         if "explanation" not in q:
             warn(f"{qq}: no `explanation` — the reveal is where the learning happens")
+
+
+def check_notebook(path: Path, fw: str) -> None:
+    """A committed notebook parses as JSON and carries no outputs (text-code TRACK.md)."""
+    try:
+        nb = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as e:
+        err(f"{fw}: not valid notebook JSON — {e}. Re-save it from Colab or Jupyter")
+        return
+    cells = nb.get("cells")
+    if not isinstance(cells, list):
+        err(f"{fw}: no `cells` list — this is not a notebook")
+        return
+    with_out = sum(1 for c in cells if isinstance(c, dict) and c.get("outputs"))
+    if with_out:
+        warn(f"{fw}: {with_out} cell(s) still carry outputs. Clear them before committing — "
+             f"`jupyter nbconvert --clear-output --inplace {path.name}`, or Colab's "
+             f"Edit > Clear all outputs")
 
 
 def check_interactive_html(path: Path, fw: str) -> None:
@@ -406,6 +425,11 @@ for dname, d in lesson_dirs.items():
                 if rel not in declared:
                     warn(f"{where}/{rel}: not declared in lesson.yaml `interactive` — "
                          f"the view only shows declared exercises")
+
+    for nb in sorted(d.rglob("*.ipynb")):
+        if any(part.startswith(".") for part in nb.relative_to(d).parts):
+            continue
+        check_notebook(nb, f"{where}/{nb.relative_to(d)}")
 
     # check.yaml — an unmarked self-check, never an assessment
     cy = d / "check.yaml"

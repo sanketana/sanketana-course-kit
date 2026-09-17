@@ -11,6 +11,22 @@ For courses taught in a text language — Python, Java, JavaScript. Extends `CON
   as code blocks, never in `code/` (students can browse `code/`).
 - A 3–5 line header comment at the top of each file: what it shows, and the one line to look at.
 
+### Notebooks
+Some courses run part of a session in Colab. `notebook_*.ipynb` is allowed in `code/`.
+
+- **"Runnable as-is" means it runs top-to-bottom in Google Colab with no local setup.** Anything it
+  needs, it installs or downloads in its own first code cell. A notebook that only runs on the
+  author's laptop is not a starter, it is a note to self.
+- The first markdown cell does the job the header comment does in a `.py`: what this shows, and the
+  one cell to look at.
+- **Commit with outputs cleared** — `jupyter nbconvert --clear-output --inplace notebook_x.ipynb`, or
+  Colab's *Edit → Clear all outputs*. Committed outputs make every diff unreadable and quietly leak
+  whatever was in the kernel.
+- Reference it from `lesson.yaml: project.starter`, whose path is relative to the lesson folder
+  (`code/notebook_rag.ipynb`). The view builds the Colab open-link from the repo URL, so **never
+  paste a Colab URL into markdown** — it pins the notebook to one person's Drive. `resources` is for
+  http(s) links out to the web, not for files in this repo.
+
 ## How the standard phases run in this track
 The six §5 phases are fixed in `CONVENTION.md`. What is track-specific is how two of them are run:
 - **Predict → Observe → Explain** — a `predict_` file the student reads and writes the output of before
