@@ -11,3 +11,19 @@ video:
     url: https://youtu.be/REPLACE
 prerequisites: [l02]
 tags: [scratch, if-else, sensing]
+
+outcomes:                        # student-facing; what they can do afterwards
+  - say what fits in the hexagon slot, and why a number doesn't
+  - put a check inside a `forever` loop and explain what breaks when it sits outside
+  - work out why a wall one shade off stops being a wall
+project:
+  name: Maze Runner
+  brief: >
+    A sprite you steer with the arrow keys that stops at the black walls and
+    finishes at the red exit.
+  # starter: the .sb3 is a binary this template doesn't ship — in a real lesson,
+  # point at assets/starter_maze.sb3 here.
+resources:
+  - label: Scratch Wiki — Sensing blocks
+    url: https://en.scratch-wiki.info/wiki/Sensing_Blocks
+    note: look at "touching color" only; the rest is for later

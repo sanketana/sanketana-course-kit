@@ -124,11 +124,15 @@ it, and the fields map straight across:
 | New concepts | `lesson.yaml: tags` |
 | What this session is for | `lesson.yaml: summary`, condensed — and plan §1 Lesson Theme |
 | Concepts introduced | plan §4 Learning Outcomes, and `concepts.md` |
+| **Project:** | `lesson.yaml: project` — `name` and a one-sentence `brief` |
 | Predict-then-run | the POE row of plan §5 |
 | Build | plan §2 Key Activity, and the Build row of §5 |
 | Deliverable | the Ships cell above, and plan §2's protected takeaway |
 | Homework | `homework.md` |
 | Teacher risk | plan §6 Differentiation and §8 Teacher Prep Notes |
+
+`lesson.yaml: outcomes` is condensed from **What this session is for** and **Concepts introduced**, but
+written to the student rather than the teacher — it is not plan §4 with the prefix stripped.
 
 So write the decisions here and the wording there. If you find yourself drafting the sentences a
 teacher will actually say, you are in the wrong file.

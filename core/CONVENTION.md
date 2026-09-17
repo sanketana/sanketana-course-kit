@@ -131,9 +131,56 @@ video:                           # opt  list so recap + demo both fit
     url: https://youtu.be/xxxx
 prerequisites: [l02]             # opt  lesson ids
 tags: [conditionals, boolean]    # opt  free text for search
+
+outcomes:                        # opt   student-facing; 2–4 lines; "by the end you can …"
+  - predict which branch runs before you run it            #       without the prefix
+  - say what `=` does that `==` doesn't
+project:                         # opt   the named thing built in class; student-facing
+  name: Battery Check            # MUST if project present
+  brief: >                       # MUST if project present; 1–2 sentences
+    A program that reads a battery percentage and chooses one of three messages.
+  starter: code/starter_battery.py   # opt  path from the lesson folder; must exist
+resources:                       # opt   student-facing links
+  - label: Python docs — if statements   # MUST per item
+    url: https://docs.python.org/3/tutorial/controlflow.html   # MUST per item; http(s) only
+    note: the first two paragraphs are enough                  # opt
+interactive:                     # opt   see §3b
+  - id: branches                 # MUST per item; unique in the lesson; [a-z0-9-]
+    label: Branch stepper        # MUST per item
+    file: interactive/branches.html   # MUST per item; must exist, under interactive/
+thinking_skills:                 # opt   the fixed vocabulary below
+  - mental-modeling
 ```
 
-Tracks may add optional fields in `TRACK.md`; `ai-fluency` adds `thinking_skills`.
+**`outcomes` is written to the student, `lesson-plan.md` §4 is written to the teacher.** Both condense
+the same two curriculum fields — "What this session is for" and "Concepts introduced" — so write them
+from the spine, not by copying §4 and stripping a prefix. Two or three lines is usually right; more than
+four means the session is carrying more than one idea.
+
+**`project`** names the thing a student would show someone. It matches the `Ships` cell for that session
+in `curriculum.md`, and `starter` points at the file they open to begin — the same one the plan's §7
+calls pre-filled.
+
+**`resources`** are for the student, not the teacher: a link they could follow between sessions. Keep it
+to two or three, and say in `note` why it is worth their time. Teacher references belong in the plan's §8.
+
+### Thinking skills
+
+An optional list on any track. The vocabulary is fixed — these exact ids are the only ones the validator
+accepts:
+
+| id | what it looks like in a lesson |
+|---|---|
+| `mental-modeling` | the student can predict what the machine will do before it does it |
+| `intentional-direction` | the student decides what to build and why before touching the tool |
+| `critical-evaluation` | the student judges output — theirs, a peer's, an AI's — against a standard |
+| `selective-judgment` | the student chooses between valid options and can say why |
+| `ethical-reasoning` | the student notices who is affected by what they build |
+
+Emphasise one or two per lesson, not all five. Name them here; don't lecture them in the prose. What each
+one *looks like* in a particular track is in that track's `TRACK.md`.
+
+Tracks may add further optional fields in `TRACK.md`.
 
 ## 5. Markdown body rules
 

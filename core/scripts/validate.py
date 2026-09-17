@@ -57,7 +57,7 @@ ASSESSMENTS = {
 }
 LESSON_DIR_RE = re.compile(r"^lesson-(\d{2})-([a-z0-9]+(?:-[a-z0-9]+)*)$")
 LESSON_ID_RE = re.compile(r"^l\d{2}$")
-LESSON_DIRS_OPTIONAL = {"code", "assets"}
+LESSON_DIRS_OPTIONAL = {"code", "assets", "interactive"}
 QUIZ_TYPES = {"single", "multi", "predict", "short"}
 
 CONCEPT_H2 = {
@@ -101,6 +101,7 @@ CORE_H2 = {
 }
 NUMBERED_OK = {"homework.md", "solutions.md", "practice.md"}
 
+INTERACTIVE_ID_RE = re.compile(r"^[a-z0-9-]+$")
 FRONTMATTER_RE = re.compile(r"^---\s*\n")
 H2_RE = re.compile(r"^## +(.+?)\s*$", re.MULTILINE)
 H3_RE = re.compile(r"^### +(.+?)\s*$", re.MULTILINE)
@@ -305,6 +306,72 @@ for dname, d in lesson_dirs.items():
         for pre in L.get("prerequisites") or []:
             if not LESSON_ID_RE.match(str(pre)):
                 err(f"{lw}: `prerequisites` entries must be lesson ids like `l02`, got `{pre}`")
+
+        # outcomes — student-facing, 2-4 lines
+        if "outcomes" in L:
+            outs = L.get("outcomes")
+            if not isinstance(outs, list):
+                err(f"{lw}: `outcomes` must be a list of lines")
+            elif not 2 <= len(outs) <= 4:
+                warn(f"{lw}: {len(outs)} `outcomes` — 2 to 4 is the range; more than four usually "
+                     f"means the session carries more than one idea")
+
+        # project — the named thing built in class
+        if "project" in L:
+            P = L.get("project")
+            if not isinstance(P, dict):
+                err(f"{lw}: `project` must be a mapping with `name` and `brief`")
+            else:
+                require(P, "name", f"{lw} project", str)
+                require(P, "brief", f"{lw} project", str)
+                starter = P.get("starter")
+                if starter and not (d / str(starter)).exists():
+                    err(f"{lw}: `project.starter` `{starter}` does not exist in {where}/")
+
+        # resources — student-facing links
+        for i, r in enumerate(L.get("resources") or [], 1):
+            rw = f"{lw} resources[{i}]"
+            if not isinstance(r, dict):
+                err(f"{rw}: must be a mapping with `label` and `url`")
+                continue
+            require(r, "label", rw, str)
+            if require(r, "url", rw, str) and not str(r["url"]).startswith(("http://", "https://")):
+                err(f"{rw}: `url` must start with http:// or https://, got `{r['url']}`")
+
+        # interactive — declared exercises must exist under interactive/
+        declared: set[str] = set()
+        seen_int_ids: set[str] = set()
+        for i, it in enumerate(L.get("interactive") or [], 1):
+            iw = f"{lw} interactive[{i}]"
+            if not isinstance(it, dict):
+                err(f"{iw}: must be a mapping with `id`, `label` and `file`")
+                continue
+            if require(it, "id", iw, str):
+                iid = str(it["id"])
+                if not INTERACTIVE_ID_RE.match(iid):
+                    err(f"{iw}: `id` must be lowercase letters, digits and hyphens, got `{iid}`")
+                if iid in seen_int_ids:
+                    err(f"{iw}: duplicate interactive id `{iid}` in this lesson")
+                seen_int_ids.add(iid)
+            require(it, "label", iw, str)
+            if require(it, "file", iw, str):
+                rel = str(it["file"])
+                if not rel.endswith(".html"):
+                    err(f"{iw}: `file` must end in `.html`, got `{rel}`")
+                elif not rel.startswith("interactive/") or "/" in rel[len("interactive/"):]:
+                    err(f"{iw}: `file` must be `interactive/<name>.html`, got `{rel}`")
+                elif not (d / rel).exists():
+                    err(f"{iw}: `file` `{rel}` does not exist in {where}/")
+                else:
+                    declared.add(rel)
+
+        idir = d / "interactive"
+        if idir.is_dir():
+            for hp in sorted(idir.glob("*.html")):
+                rel = f"interactive/{hp.name}"
+                if rel not in declared:
+                    warn(f"{where}/{rel}: not declared in lesson.yaml `interactive` — "
+                         f"the view only shows declared exercises")
 
     # markdown files
     for f in present:

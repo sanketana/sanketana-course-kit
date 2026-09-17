@@ -11,3 +11,21 @@ video:
     url: https://youtu.be/REPLACE
 prerequisites: [l10]
 tags: [functions, return, none]
+
+outcomes:                        # student-facing; what they can do afterwards
+  - say where a value goes when a function returns it, and where it goes when it only prints
+  - predict what a variable holds after a function that has no `return`
+  - pull a repeated line into a function the rest of your program can actually use
+project:
+  name: Temperatures
+  brief: >
+    The same conversion written out three times, pulled into one function —
+    then made usable by handing its answer back instead of printing it.
+  starter: code/starter_temps.py
+resources:
+  - label: Python docs — defining functions
+    url: https://docs.python.org/3/tutorial/controlflow.html#defining-functions
+    note: read to the end of the first example; skip the default-arguments part
+  - label: Python docs — None
+    url: https://docs.python.org/3/library/constants.html
+    note: two sentences, and they are the two that matter this week
